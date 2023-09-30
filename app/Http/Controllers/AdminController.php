@@ -17,6 +17,7 @@ class AdminController extends Controller
     public function create_siswa(Request $request)
     {
         $user = Auth::user();
+        // return $user;
         
         if ($user->level === 'admin') {
             $validate = Validator::make($request->all(), [
@@ -29,7 +30,7 @@ class AdminController extends Controller
                 'id_spp' => 'required'
             ]);
     
-            if (!Siswa::where('nisn', $request->nisn)->first() && !Siswa::where('nis', $request->nis)->first()) {
+            if (!Siswa::where('nisn', $request->nisn)->where('nis', $request->nis)->first()) {
                 if ($validate->fails()) {
                     return response()->json($validate->errors());
                 }
@@ -41,7 +42,8 @@ class AdminController extends Controller
                     'id_kelas' => $request->id_kelas,
                     'alamat' => $request->alamat,
                     'no_telp' => $request->no_telp,
-                    'id_spp' => $request->id_spp
+                    'id_spp' => $request->id_spp,
+                    'level' => 'siswa'
                 ]);
     
                 if ($store) {
@@ -61,7 +63,7 @@ class AdminController extends Controller
             }
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -74,7 +76,7 @@ class AdminController extends Controller
             return response()->json($data, 200);
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -122,7 +124,29 @@ class AdminController extends Controller
             }
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function delete_siswa(string $nisn) 
+    {
+        $user = Auth::user();
+
+        if($user->level === 'admin') {
+            $delete = Siswa::destroy($nisn);
+            if ($delete) {
+                return response()->json([
+                    'message' => 'Berhasil menghapus data siswa'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal menghapus data siswa'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -169,7 +193,7 @@ class AdminController extends Controller
             }
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -182,7 +206,72 @@ class AdminController extends Controller
             return response()->json($data, 200);
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function edit_petugas(string $id, Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->level === 'admin') {
+            $data = User::find($id);
+        
+            $validate = Validator::make($request->all(), [
+                'username' => 'string|required',
+                'password' => 'required',
+                'nama_petugas' => 'required',
+                'level' => 'string|required'
+            ]);
+
+            if($validate->fails()) {
+                return response()->json($validate->errors());
+            }
+
+            $update = $data->update([
+                'username' => $request->username,
+                'password' => $request->password,
+                'nama_petugas' => $request->nama_petugas,
+                'level' => $request->level
+            ]);
+
+            if ($update) {
+                return response()->json([
+                    'message' => 'Berhasil mengubah data petugas',
+                    'data' => $data
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal mengubah data petugas, silahkan coba lagi!'
+                ], 421);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function delete_petugas(string $id) 
+    {
+        $user = Auth::user();
+
+        if($user->level === 'admin') {
+            $delete = User::destroy($id);
+            if ($delete) {
+                return response()->json([
+                    'message' => 'Berhasil menghapus data petugas'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal menghapus data petugas'
+                ]);
+            }
+            
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -225,7 +314,7 @@ class AdminController extends Controller
             }
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -238,7 +327,67 @@ class AdminController extends Controller
             return response()->json($data, 200);
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function edit_kelas(string $id, Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->level === 'admin') {
+            $data = Kelas::find($id);
+        
+            $validate = Validator::make($request->all(), [
+                'nama_kelas' => 'required',
+                'kompetensi_keahlian' => 'required',
+            ]);
+
+            if($validate->fails()) {
+                return response()->json($validate->errors());
+            }
+
+            $update = $data->update([
+                'nama_kelas' => $request->nama_kelas,
+                'kompetensi_keahlian' => $request->kompetensi_keahlian
+            ]);
+
+            if ($update) {
+                return response()->json([
+                    'message' => 'Berhasil mengubah data kelas',
+                    'data' => $data
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal mengubah data kelas, silahkan coba lagi!'
+                ], 421);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function delete_kelas(string $id) 
+    {
+        $user = Auth::user();
+
+        if($user->level === 'admin') {
+            $delete = Kelas::destroy($id);
+            if ($delete) {
+                return response()->json([
+                    'message' => 'Berhasil menghapus data kelas'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal menghapus data kelas'
+                ]);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -275,7 +424,7 @@ class AdminController extends Controller
             }
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
@@ -288,7 +437,68 @@ class AdminController extends Controller
             return response()->json($data, 200);
         } else {
             return response()->json([
-                'message' => 'Anda bukan admin!'
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function edit_spp(string $id, Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->level === 'admin') {
+            $data = Spp::find($id);
+        
+            $validate = Validator::make($request->all(), [
+                'tahun' => 'required',
+                'nominal' => 'required'
+            ]);
+
+            if($validate->fails()) {
+                return response()->json($validate->errors());
+            }
+
+            $update = $data->update([
+                'tahun' => $request->tahun,
+                'nominal' => $request->nominal
+            ]);
+
+            if ($update) {
+                return response()->json([
+                    'message' => 'Berhasil mengubah data spp',
+                    'data' => $data
+                ], 200);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal mengubah data spp, silahkan coba lagi!'
+                ], 421);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
+            ], 422);
+        }
+    }
+
+    public function delete_spp(string $id) 
+    {
+        $user = Auth::user();
+
+        if($user->level === 'admin') {
+            $delete = Spp::destroy($id);
+            if ($delete) {
+                return response()->json([
+                    'message' => 'Berhasil menghapus data spp'
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Gagal menghapus data spp'
+                ]);
+            }
+            
+        } else {
+            return response()->json([
+                'message' => 'Tidak memiliki akses!'
             ], 422);
         }
     }
