@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pembayaran', function (Blueprint $table) {
-            $table->id('id_pembayaran');
-            $table->string('tgl_bayar', 2);
+            $table->integer('id_pembayaran')->autoIncrement();
+            $table->dateTime('tgl_bayar');
             $table->string('bulan_dibayar', 8);
             $table->string('tahun_dibayar', 4);
             $table->integer('jumlah_bayar');
 
             // Membuat foreign pada laravel migration
-            $table->unsignedBigInteger('id_petugas');
+            $table->integer('id_petugas');
             $table->foreign('id_petugas')->references('id_petugas')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->string('nisn', 10);
             $table->foreign('nisn')->references('nisn')->on('siswa')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('id_spp');
+            $table->integer('id_spp');
             $table->foreign('id_spp')->references('id_spp')->on('siswa')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();

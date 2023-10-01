@@ -25,12 +25,12 @@ class Pembayaran extends Model
 
     public function petugas()
     {
-        return $this->hasMany('id_petugas', Users::class);
+        return $this->belongsTo(User::class, 'id_petugas');
     }
 
     public function siswa()
     {
-        return $this->hasMany('nisn', Siswa::class);
+        return $this->belongsTo(Siswa::class, 'nisn');
     }
 
     public function spp()

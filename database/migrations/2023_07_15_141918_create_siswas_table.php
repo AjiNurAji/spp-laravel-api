@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('siswa', function (Blueprint $table) {
             $table->char('nisn', 10)->primary();
-            $table->char('nis', 8);
+            $table->char('nis', 8)->unique();
             $table->string('nama', 35);
             $table->text('alamat');
             $table->string('no_telp', 13);
@@ -21,9 +21,9 @@ return new class extends Migration
             $table->timestamps();
             
             // Membuat foreigh pada larvael migration
-            $table->unsignedBigInteger('id_kelas');
+            $table->integer('id_kelas');
             $table->foreign('id_kelas')->references('id_kelas')->on('kelas')->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedBigInteger('id_spp');
+            $table->integer('id_spp');
             $table->foreign('id_spp')->references('id_spp')->on('spp')->onDelete('cascade')->onUpdate('cascade');
         });
     }

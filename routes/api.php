@@ -64,5 +64,6 @@ Route::group([
 
     // transaksi
     Route::post('pay', [PayController::class, 'create']);
-    Route::get('show-all-transaksi', [Pembayaran::class, 'showAll']);
+    Route::get('show-all-transaksi', [PayController::class, 'showAll']);
+    Route::get('{nisn}/generate/{id_spp}/{id_pembayaran}', [PayController::class, 'generate']);
 });
